@@ -196,6 +196,38 @@ async function treinarModelo() {
     predicaoNorm.dispose();
   }
   
+  // ============================================
+  // PARTE 5: Predição do Futuro! (2030)
+  // ============================================
+  
+  console.log('\n=== 🔮 Predição para 2030 ===\n');
+  
+  // 22. Preparar o ano 2030 para predição
+  const ano2030 = 2030;
+  const ano2030Normalizado = (ano2030 - anosNormalizados.min) / (anosNormalizados.max - anosNormalizados.min);
+  
+  // 23. Fazer a predição
+  const predicao2030Norm = modelo.predict(tf.tensor2d([ano2030Normalizado], [1, 1]));
+  const predicao2030Real = desnormalizar(
+    predicao2030Norm.dataSync()[0],
+    populacoesNormalizadas.min,
+    populacoesNormalizadas.max
+  );
+  
+  console.log(`🎯 População prevista para São Paulo em 2030: ${Math.round(predicao2030Real).toLocaleString('pt-BR')} habitantes`);
+  
+  // 24. Calcular a diferença em relação a 2025
+  const ultimaPopulacao = populacoesSP[populacoesSP.length - 1];
+  const diferencaAbsoluta = Math.round(predicao2030Real) - ultimaPopulacao;
+  const diferencaPercentual = ((predicao2030Real - ultimaPopulacao) / ultimaPopulacao * 100).toFixed(2);
+  
+  console.log(`\n📈 Variação esperada (2025 → 2030):`);
+  console.log(`   Diferença: ${diferencaAbsoluta > 0 ? '+' : ''}${diferencaAbsoluta.toLocaleString('pt-BR')} habitantes`);
+  console.log(`   Percentual: ${diferencaPercentual > 0 ? '+' : ''}${diferencaPercentual}%`);
+  
+  // 25. Limpeza de memória
+  predicao2030Norm.dispose();
+  
   // 21. Limpeza de memória dos tensores de treino
   X_train.dispose();
   Y_train.dispose();
