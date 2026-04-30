@@ -30,87 +30,46 @@ function desnormalizar(valorNormalizado, min, max) {
 }
 
 // ============================================
-// PARTE 1: Análise Estática (Dados de 2025)
+// PARTE 1: Carregamento e Análise dos Dados Históricos
 // ============================================
 
-// 1. Carregamento dos Dados
-// Lê o arquivo local como texto (utf-8) e converte para objeto JavaScript.
-// Na vida real, isso poderia ser uma chamada de API (axios) ou um CSV gigante do IBGE.
-const dadosRaw = fs.readFileSync('./dados.json', 'utf-8');
-const dados = JSON.parse(dadosRaw);
+console.log('=== 📊 Preditor de População - São Paulo (IBGE) ===\n');
+console.log('🔮 Análise Temporal e Predição com Machine Learning\n');
+console.log('='.repeat(60) + '\n');
 
-// 2. Pré-processamento
-// O TensorFlow é focado em matemática pura. 
-// Por isso, separamos apenas os números (população), ignorando textos como siglas de estados.
-const populacoes = dados.map(item => item.populacao);
-
-// 3. Criação do Tensor
-// Transforma o array simples do JS em um Tensor 1D.
-// Isso prepara os dados para processamento paralelo na GPU ou otimizado na CPU,
-// sendo infinitamente mais rápido que um "for loop" comum para milhões de registros.
-const tensorPopulacao = tf.tensor1d(populacoes);
-
-// 4. Processamento Matemático
-// Usa as funções nativas do TensorFlow para calcular métricas de uma só vez
-const media = tensorPopulacao.mean();
-const maximo = tensorPopulacao.max();
-const minimo = tensorPopulacao.min();
-
-// 5. Extração e Exibição
-// .dataSync()[0] é usado para "puxar" o resultado calculado de volta do mundo dos tensores 
-// para uma variável comum que o Node.js consiga imprimir na tela.
-console.log('=== Análise de População dos Estados (2025) ===\n');
-console.log(`Média das populações: ${media.dataSync()[0].toLocaleString('pt-BR')} habitantes`);
-console.log(`Estado mais populoso: ${maximo.dataSync()[0].toLocaleString('pt-BR')} habitantes`);
-console.log(`Estado menos populoso: ${minimo.dataSync()[0].toLocaleString('pt-BR')} habitantes`);
-
-// 6. Gerenciamento de Memória
-// Regra de ouro da IA: se você criou um tensor e não vai mais usar, destrua-o.
-// Isso evita estouro de memória (memory leak) em aplicações rodando 24/7.
-tensorPopulacao.dispose();
-media.dispose();
-maximo.dispose();
-minimo.dispose();
-
-// ============================================
-// PARTE 2: Análise Temporal (Dados Históricos)
-// ============================================
-
-console.log('\n=== Análise Temporal - Evolução de São Paulo (2010-2025) ===\n');
-
-// 7. Carregar dados históricos
+// 1. Carregar dados históricos
 const dadosHistoricosRaw = fs.readFileSync('./dados-historicos.json', 'utf-8');
 const dadosHistoricos = JSON.parse(dadosHistoricosRaw);
 
-// 8. Extrair dados de SP para análise temporal
+// 2. Extrair dados de SP para análise temporal
 const dadosSP = dadosHistoricos.find(item => item.estado === 'SP');
 const populacoesSP = dadosSP.dados.map(d => d.populacao);
 const anos = dadosSP.dados.map(d => d.ano);
 
-// 9. Criar tensor com série temporal
+// 3. Criar tensor com série temporal
 const tensorTemporalSP = tf.tensor1d(populacoesSP);
 
-// 10. Calcular crescimento ao longo do tempo
-console.log('Evolução populacional de São Paulo:');
+// 4. Exibir evolução temporal
+console.log('📅 Evolução populacional de São Paulo:');
 dadosSP.dados.forEach(d => {
   console.log(`  ${d.ano}: ${d.populacao.toLocaleString('pt-BR')} habitantes`);
 });
 
-// 11. Calcular taxa de crescimento média usando tensors
+// 5. Calcular estatísticas usando tensors
 const crescimentoMedio = tensorTemporalSP.mean();
-console.log(`\nPopulação média no período: ${crescimentoMedio.dataSync()[0].toLocaleString('pt-BR')} habitantes`);
+console.log(`\n📊 População média no período: ${crescimentoMedio.dataSync()[0].toLocaleString('pt-BR')} habitantes`);
 
-// 12. Limpeza de memória
+// 6. Limpeza de memória
 tensorTemporalSP.dispose();
 crescimentoMedio.dispose();
 
 // ============================================
-// PARTE 3: Normalização de Dados (Preparação para IA)
+// PARTE 2: Normalização de Dados (Preparação para IA)
 // ============================================
 
 console.log('\n=== Normalização de Dados ===\n');
 
-// 13. Normalizar os anos (variável X) e populações (variável Y)
+// 7. Normalizar os anos (variável X) e populações (variável Y)
 // Isso transforma valores como [2010, 2015, 2020, 2025] em [0, 0.33, 0.66, 1]
 // e populações gigantes em valores entre 0 e 1.
 const anosNormalizados = normalizar(anos);
@@ -122,28 +81,28 @@ console.log('Anos normalizados:', anosNormalizados.normalizados.map(v => v.toFix
 console.log('\nPopulações originais:', populacoesSP.map(p => p.toLocaleString('pt-BR')));
 console.log('Populações normalizadas:', populacoesNormalizadas.normalizados.map(v => v.toFixed(4)));
 
-// 14. Exemplo de desnormalização
+// 8. Exemplo de desnormalização
 const primeiroAnoNormalizado = anosNormalizados.normalizados[0];
 const anoOriginal = desnormalizar(primeiroAnoNormalizado, anosNormalizados.min, anosNormalizados.max);
 console.log(`\nExemplo: ${primeiroAnoNormalizado.toFixed(2)} (normalizado) = ${anoOriginal} (original)`);
 
 // ============================================
-// PARTE 4: Modelo de Regressão Linear (Machine Learning!)
+// PARTE 3: Modelo de Regressão Linear (Machine Learning!)
 // ============================================
 
 console.log('\n=== Treinamento do Modelo de IA ===\n');
 
-// 15. Criar tensores de treino (X = anos, Y = população)
+// 9. Criar tensores de treino (X = anos, Y = população)
 // tf.tensor2d cria uma matriz, que é o formato esperado pelo modelo
 // Cada linha é um exemplo de treino: [[ano1], [ano2], [ano3], [ano4]]
 const X_train = tf.tensor2d(anosNormalizados.normalizados, [anos.length, 1]);
 const Y_train = tf.tensor2d(populacoesNormalizadas.normalizados, [populacoesSP.length, 1]);
 
-// 16. Criar o modelo sequencial
+// 10. Criar o modelo sequencial
 // Sequential = camadas empilhadas uma após a outra
 const modelo = tf.sequential();
 
-// 17. Adicionar camada densa (neurônios totalmente conectados)
+// 11. Adicionar camada densa (neurônios totalmente conectados)
 // units: 1 = um único neurônio de saída (prever 1 valor: a população)
 // inputShape: [1] = recebe 1 entrada (o ano)
 // activation: 'linear' = sem função de ativação, pois é regressão linear pura
@@ -153,7 +112,7 @@ modelo.add(tf.layers.dense({
   activation: 'linear'
 }));
 
-// 18. Compilar o modelo (definir como ele vai aprender)
+// 12. Compilar o modelo (definir como ele vai aprender)
 // optimizer: 'sgd' (Stochastic Gradient Descent) = algoritmo que ajusta os pesos
 // loss: 'meanSquaredError' = mede o erro como (predição - real)²
 // learningRate: 0.1 = velocidade do aprendizado (0.1 = moderada)
@@ -165,7 +124,7 @@ modelo.compile({
 console.log('📊 Arquitetura do Modelo:');
 modelo.summary();
 
-// 19. Treinar o modelo
+// 13. Treinar o modelo
 // epochs: 100 = número de vezes que o modelo verá todos os dados
 // Aqui é onde a "mágica" acontece: o modelo ajusta seus pesos internos
 // para minimizar o erro entre suas previsões e os valores reais
@@ -179,7 +138,7 @@ async function treinarModelo() {
   
   console.log('✅ Treinamento concluído!\n');
   
-  // 20. Testar o modelo com os dados de treino
+  // 14. Testar o modelo com os dados de treino
   console.log('=== Testando o Modelo com Dados Conhecidos ===\n');
   
   for (let i = 0; i < anos.length; i++) {
@@ -197,16 +156,16 @@ async function treinarModelo() {
   }
   
   // ============================================
-  // PARTE 5: Predição do Futuro! (2030)
+  // PARTE 4: Predição do Futuro! (2030)
   // ============================================
   
   console.log('\n=== 🔮 Predição para 2030 ===\n');
   
-  // 22. Preparar o ano 2030 para predição
+  // 15. Preparar o ano 2030 para predição
   const ano2030 = 2030;
   const ano2030Normalizado = (ano2030 - anosNormalizados.min) / (anosNormalizados.max - anosNormalizados.min);
   
-  // 23. Fazer a predição
+  // 16. Fazer a predição
   const predicao2030Norm = modelo.predict(tf.tensor2d([ano2030Normalizado], [1, 1]));
   const predicao2030Real = desnormalizar(
     predicao2030Norm.dataSync()[0],
@@ -216,7 +175,7 @@ async function treinarModelo() {
   
   console.log(`🎯 População prevista para São Paulo em 2030: ${Math.round(predicao2030Real).toLocaleString('pt-BR')} habitantes`);
   
-  // 24. Calcular a diferença em relação a 2025
+  // 17. Calcular a diferença em relação a 2025
   const ultimaPopulacao = populacoesSP[populacoesSP.length - 1];
   const diferencaAbsoluta = Math.round(predicao2030Real) - ultimaPopulacao;
   const diferencaPercentual = ((predicao2030Real - ultimaPopulacao) / ultimaPopulacao * 100).toFixed(2);
@@ -225,7 +184,7 @@ async function treinarModelo() {
   console.log(`   Diferença: ${diferencaAbsoluta > 0 ? '+' : ''}${diferencaAbsoluta.toLocaleString('pt-BR')} habitantes`);
   console.log(`   Percentual: ${diferencaPercentual > 0 ? '+' : ''}${diferencaPercentual}%`);
   
-  // 25. Limpeza de memória
+  // 18. Limpeza de memória
   predicao2030Norm.dispose();
   
   // ============================================
@@ -236,9 +195,10 @@ async function treinarModelo() {
   console.log('📊 RESUMO DA ANÁLISE COM IA');
   console.log('='.repeat(60));
   console.log('\n🔢 Dados analisados:');
-  console.log(`   • Estados brasileiros: ${dados.length}`);
+  console.log(`   • Estado: São Paulo (SP)`);
   console.log(`   • Período histórico: ${anos[0]} - ${anos[anos.length - 1]}`);
   console.log(`   • Pontos de dados temporais: ${anos.length}`);
+  console.log(`   • População em 2025: ${populacoesSP[populacoesSP.length - 1].toLocaleString('pt-BR')} habitantes`);
   
   console.log('\n🧠 Modelo de Machine Learning:');
   console.log(`   • Tipo: Regressão Linear`);
@@ -261,7 +221,7 @@ async function treinarModelo() {
   console.log('✨ Análise concluída com sucesso!');
   console.log('='.repeat(60) + '\n');
   
-  // 21. Limpeza de memória dos tensores de treino
+  // 19. Limpeza de memória dos tensores de treino
   X_train.dispose();
   Y_train.dispose();
 }
