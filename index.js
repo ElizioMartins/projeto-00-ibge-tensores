@@ -2,6 +2,34 @@ const fs = require('fs');
 const tf = require('@tensorflow/tfjs');
 
 // ============================================
+// FUNÇÕES AUXILIARES
+// ============================================
+
+/**
+ * Normaliza um array de valores para o intervalo [0, 1]
+ * Fórmula: (valor - mínimo) / (máximo - mínimo)
+ * Isso é crucial para que o modelo de IA aprenda de forma equilibrada,
+ * evitando que valores grandes (como anos ou população) dominem o aprendizado.
+ */
+function normalizar(valores) {
+  const min = Math.min(...valores);
+  const max = Math.max(...valores);
+  return {
+    normalizados: valores.map(v => (v - min) / (max - min)),
+    min,
+    max
+  };
+}
+
+/**
+ * Desnormaliza um valor que estava no intervalo [0, 1]
+ * Fórmula inversa: valor_normalizado * (máximo - mínimo) + mínimo
+ */
+function desnormalizar(valorNormalizado, min, max) {
+  return valorNormalizado * (max - min) + min;
+}
+
+// ============================================
 // PARTE 1: Análise Estática (Dados de 2025)
 // ============================================
 
@@ -75,3 +103,26 @@ console.log(`\nPopulação média no período: ${crescimentoMedio.dataSync()[0].
 // 12. Limpeza de memória
 tensorTemporalSP.dispose();
 crescimentoMedio.dispose();
+
+// ============================================
+// PARTE 3: Normalização de Dados (Preparação para IA)
+// ============================================
+
+console.log('\n=== Normalização de Dados ===\n');
+
+// 13. Normalizar os anos (variável X) e populações (variável Y)
+// Isso transforma valores como [2010, 2015, 2020, 2025] em [0, 0.33, 0.66, 1]
+// e populações gigantes em valores entre 0 e 1.
+const anosNormalizados = normalizar(anos);
+const populacoesNormalizadas = normalizar(populacoesSP);
+
+console.log('Anos originais:', anos);
+console.log('Anos normalizados:', anosNormalizados.normalizados.map(v => v.toFixed(2)));
+
+console.log('\nPopulações originais:', populacoesSP.map(p => p.toLocaleString('pt-BR')));
+console.log('Populações normalizadas:', populacoesNormalizadas.normalizados.map(v => v.toFixed(4)));
+
+// 14. Exemplo de desnormalização
+const primeiroAnoNormalizado = anosNormalizados.normalizados[0];
+const anoOriginal = desnormalizar(primeiroAnoNormalizado, anosNormalizados.min, anosNormalizados.max);
+console.log(`\nExemplo: ${primeiroAnoNormalizado.toFixed(2)} (normalizado) = ${anoOriginal} (original)`);
