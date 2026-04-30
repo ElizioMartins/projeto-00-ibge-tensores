@@ -228,6 +228,39 @@ async function treinarModelo() {
   // 25. Limpeza de memória
   predicao2030Norm.dispose();
   
+  // ============================================
+  // RESUMO FINAL
+  // ============================================
+  
+  console.log('\n' + '='.repeat(60));
+  console.log('📊 RESUMO DA ANÁLISE COM IA');
+  console.log('='.repeat(60));
+  console.log('\n🔢 Dados analisados:');
+  console.log(`   • Estados brasileiros: ${dados.length}`);
+  console.log(`   • Período histórico: ${anos[0]} - ${anos[anos.length - 1]}`);
+  console.log(`   • Pontos de dados temporais: ${anos.length}`);
+  
+  console.log('\n🧠 Modelo de Machine Learning:');
+  console.log(`   • Tipo: Regressão Linear`);
+  console.log(`   • Framework: TensorFlow.js`);
+  console.log(`   • Parâmetros treináveis: 2 (peso + bias)`);
+  console.log(`   • Épocas de treinamento: 100`);
+  
+  console.log('\n🎯 Predição Gerada:');
+  console.log(`   • Ano alvo: 2030`);
+  console.log(`   • População prevista: ${Math.round(predicao2030Real).toLocaleString('pt-BR')} habitantes`);
+  console.log(`   • Crescimento esperado: ${diferencaPercentual}% em 5 anos`);
+  
+  console.log('\n💡 Insights:');
+  const tendencia = diferencaAbsoluta > 0 ? 'crescimento' : 'decrescimento';
+  const impacto = Math.abs(diferencaPercentual) > 10 ? 'significativo' : 'moderado';
+  console.log(`   • São Paulo apresenta ${tendencia} ${impacto}`);
+  console.log(`   • O modelo sugere ${diferencaAbsoluta > 0 ? 'aumento' : 'redução'} de ${Math.abs(Math.round(diferencaAbsoluta)).toLocaleString('pt-BR')} habitantes`);
+  
+  console.log('\n' + '='.repeat(60));
+  console.log('✨ Análise concluída com sucesso!');
+  console.log('='.repeat(60) + '\n');
+  
   // 21. Limpeza de memória dos tensores de treino
   X_train.dispose();
   Y_train.dispose();
