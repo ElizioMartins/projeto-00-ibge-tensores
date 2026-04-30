@@ -1,0 +1,83 @@
+[
+  {
+    "estado": "SP",
+    "dados": [
+      { "ano": 2010, "populacao": 41262199 },
+      { "ano": 2015, "populacao": 44396484 },
+      { "ano": 2020, "populacao": 46289333 },
+      { "ano": 2025, "populacao": 44411238 }
+    ]
+  },
+  {
+    "estado": "MG",
+    "dados": [
+      { "ano": 2010, "populacao": 19597330 },
+      { "ano": 2015, "populacao": 20869101 },
+      { "ano": 2020, "populacao": 21292666 },
+      { "ano": 2025, "populacao": 20538718 }
+    ]
+  },
+  {
+    "estado": "RJ",
+    "dados": [
+      { "ano": 2010, "populacao": 15989929 },
+      { "ano": 2015, "populacao": 16550024 },
+      { "ano": 2020, "populacao": 17463349 },
+      { "ano": 2025, "populacao": 16054524 }
+    ]
+  },
+  {
+    "estado": "BA",
+    "dados": [
+      { "ano": 2010, "populacao": 14016906 },
+      { "ano": 2015, "populacao": 15203934 },
+      { "ano": 2020, "populacao": 14930634 },
+      { "ano": 2025, "populacao": 14141626 }
+    ]
+  },
+  {
+    "estado": "PR",
+    "dados": [
+      { "ano": 2010, "populacao": 10444526 },
+      { "ano": 2015, "populacao": 11242720 },
+      { "ano": 2020, "populacao": 11516840 },
+      { "ano": 2025, "populacao": 11444380 }
+    ]
+  },
+  {
+    "estado": "RS",
+    "dados": [
+      { "ano": 2010, "populacao": 10693929 },
+      { "ano": 2015, "populacao": 11247972 },
+      { "ano": 2020, "populacao": 11422973 },
+      { "ano": 2025, "populacao": 10882965 }
+    ]
+  },
+  {
+    "estado": "PE",
+    "dados": [
+      { "ano": 2010, "populacao": 8796448 },
+      { "ano": 2015, "populacao": 9345173 },
+      { "ano": 2020, "populacao": 9616621 },
+      { "ano": 2025, "populacao": 9058931 }
+    ]
+  },
+  {
+    "estado": "CE",
+    "dados": [
+      { "ano": 2010, "populacao": 8452381 },
+      { "ano": 2015, "populacao": 8904459 },
+      { "ano": 2020, "populacao": 9187103 },
+      { "ano": 2025, "populacao": 8794957 }
+    ]
+  },
+  {
+    "estado": "ES",
+    "dados": [
+      { "ano": 2010, "populacao": 3514952 },
+      { "ano": 2015, "populacao": 3929911 },
+      { "ano": 2020, "populacao": 4064052 },
+      { "ano": 2025, "populacao": 3833712 }
+    ]
+  }
+]
