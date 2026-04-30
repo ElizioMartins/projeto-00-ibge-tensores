@@ -9,12 +9,22 @@ Este projeto demonstra o **ciclo completo de Machine Learning**, desde o carrega
 1. **Carregamento** de dados históricos do IBGE (2010-2025)
 2. **Pré-processamento** e normalização de dados
 3. **Treinamento** de modelo de regressão linear
-4. **Predição** da população de São Paulo para 2030
+4. **Predição** da população para 2030
 5. **Análise estatística** com tensores
 
-### 🔮 Resultado Principal
+### ⚙️ Parametrização Flexível
 
-O modelo prevê que **São Paulo terá aproximadamente 46,2 milhões de habitantes em 2030**, representando um crescimento de ~4% em relação a 2025.
+**Analise qualquer estado brasileiro!** Basta alterar uma linha de código:
+
+```javascript
+const ESTADO_ALVO = 'SP'; // SP, MG, RJ, BA, PR, RS, PE, CE, ES
+```
+
+### 🔮 Exemplos de Predição
+
+- **São Paulo (SP)**: ~46,5 milhões de habitantes em 2030 (+4,7%)
+- **Minas Gerais (MG)**: ~21,4 milhões de habitantes em 2030 (+4,3%)
+- **Rio de Janeiro (RJ)**: Predição disponível no sistema
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -39,7 +49,16 @@ npm install
 
 Este comando irá instalar todas as dependências necessárias listadas no `package.json`, incluindo o `@tensorflow/tfjs`.
 
-### 2. Executar o projeto
+### 2. (Opcional) Configurar o estado a ser analisado
+
+Abra o arquivo `index.js` e altere a constante `ESTADO_ALVO` no topo do arquivo:
+
+```javascript
+// CONFIGURAÇÃO DO PROJETO
+const ESTADO_ALVO = 'MG'; // Altere para: SP, MG, RJ, BA, PR, RS, PE, CE, ES
+```
+
+### 3. Executar o projeto
 
 ```bash
 node index.js
@@ -50,21 +69,20 @@ node index.js
 Ao executar o projeto, você verá uma análise completa com predição usando IA:
 
 ```
-=== Análise de População dos Estados (2025) ===
+=== 📊 Preditor de População - São Paulo (IBGE) ===
 
-Média das populações: 15.462.339 habitantes
-Estado mais populoso: 44.411.240 habitantes
-Estado menos populoso: 3.833.712 habitantes
+🔮 Análise Temporal e Predição com Machine Learning
 
-=== Análise Temporal - Evolução de São Paulo (2010-2025) ===
+============================================================
 
-Evolução populacional de São Paulo:
+📅 Evolução populacional de São Paulo:
+
   2010: 41.262.199 habitantes
   2015: 44.396.484 habitantes
   2020: 46.289.333 habitantes
   2025: 44.411.238 habitantes
 
-População média no período: 44.089.816 habitantes
+📊 População média no período: 44.089.816 habitantes
 
 === Normalização de Dados ===
 
@@ -94,20 +112,21 @@ Trainable params: 2
 
 === 🔮 Predição para 2030 ===
 
-🎯 População prevista para São Paulo em 2030: 46.272.205 habitantes
+🎯 População prevista para São Paulo em 2030: 46.508.243 habitantes
 
 📈 Variação esperada (2025 → 2030):
-   Diferença: +1.860.967 habitantes
-   Percentual: +4.19%
+   Diferença: +2.097.005 habitantes
+   Percentual: +4.72%
 
 ============================================================
 📊 RESUMO DA ANÁLISE COM IA
 ============================================================
 
 🔢 Dados analisados:
-   • Estados brasileiros: 9
+   • Estado: São Paulo (SP)
    • Período histórico: 2010 - 2025
    • Pontos de dados temporais: 4
+   • População em 2025: 44.411.238 habitantes
 
 🧠 Modelo de Machine Learning:
    • Tipo: Regressão Linear
@@ -117,12 +136,12 @@ Trainable params: 2
 
 🎯 Predição Gerada:
    • Ano alvo: 2030
-   • População prevista: 46.272.205 habitantes
-   • Crescimento esperado: 4.19% em 5 anos
+   • População prevista: 46.508.243 habitantes
+   • Crescimento esperado: 4.72% em 5 anos
 
 💡 Insights:
    • São Paulo apresenta crescimento moderado
-   • O modelo sugere aumento de 1.860.967 habitantes
+   • O modelo sugere aumento de 2.097.005 habitantes
 
 ============================================================
 ✨ Análise concluída com sucesso!
@@ -133,9 +152,8 @@ Trainable params: 2
 
 ```
 Projeto-00/
-├── dados.json              # Dados de população dos estados (2025)
-├── dados-historicos.json   # Série temporal (2010-2025) para treino do modelo
-├── index.js                # Script principal com modelo de IA
+├── dados-historicos.json   # Série temporal (2010-2025) de 9 estados para treino
+├── index.js                # Script principal com modelo de IA parametrizável
 ├── package.json            # Configurações e dependências do projeto
 └── README.md               # Documentação completa do projeto
 ```
@@ -175,6 +193,8 @@ Algoritmo de otimização que:
 
 - ✅ **Modelo real de Machine Learning** (não apenas estatística)
 - ✅ **Predição de valores futuros** com IA
+- ✅ **Parametrização flexível** - analise qualquer estado brasileiro
+- ✅ **Validação automática** - verifica se o estado existe nos dados
 - ✅ **Dados reais do IBGE** (fonte confiável)
 - ✅ **Código educacional** com comentários explicativos
 - ✅ **Pipeline completo** de ML (carregamento → treino → predição)
@@ -183,62 +203,78 @@ Algoritmo de otimização que:
 
 ## 📝 Estrutura dos Dados
 
-O arquivo `dados.json` contém um array de objetos com informações dos estados:
+O arquivo `dados-historicos.json` contém séries temporais de 9 estados brasileiros:
 
 ```json
 [
-  { "estado": "SP", "populacao": 44411238 },
-  { "estado": "MG", "populacao": 20538718 },
+  {
+    "estado": "SP",
+    "dados": [
+      { "ano": 2010, "populacao": 41262199 },
+      { "ano": 2015, "populacao": 44396484 },
+      { "ano": 2020, "populacao": 46289333 },
+      { "ano": 2025, "populacao": 44411238 }
+    ]
+  },
+  { "estado": "MG", "dados": [...] },
   ...
 ]
 ```
 
+**Estados disponíveis**: SP, MG, RJ, BA, PR, RS, PE, CE, ES
+
 ## 🧠 Como Funciona
 
-### 1. **Carregamento de Dados**
+### 1. **Configuração**
+   - Constante `ESTADO_ALVO` define qual estado será analisado
+   - Mapeamento de siglas para nomes completos
+   - Validação automática de estado válido
+
+### 2. **Carregamento de Dados**
    - Lê dados históricos de população (2010-2025) de 9 estados brasileiros
    - Utiliza o módulo `fs` para ler arquivos JSON locais
+   - Extrai apenas dados do estado configurado
 
-### 2. **Pré-processamento**
+### 3. **Pré-processamento**
    - Extrai apenas valores numéricos (população) dos dados
    - Separa variáveis X (anos) e Y (população)
 
-### 3. **Normalização**
+### 4. **Normalização**
    - Transforma todos os valores para o intervalo [0, 1]
    - Fórmula: `(valor - mínimo) / (máximo - mínimo)`
    - Essencial para o aprendizado equilibrado do modelo
 
-### 4. **Conversão para Tensores**
+### 5. **Conversão para Tensores**
    - Array JavaScript → Tensor 1D/2D do TensorFlow
    - Permite processamento vetorizado ultra-rápido
    - Preparação para operações de Machine Learning
 
-### 5. **Criação do Modelo**
+### 6. **Criação do Modelo**
    - **Arquitetura**: Rede Neural Sequencial
    - **Camadas**: 1 camada densa (fully connected)
    - **Neurônios**: 1 neurônio de saída (regressão)
    - **Ativação**: Linear (sem transformação)
    - **Parâmetros**: 2 (1 peso + 1 bias)
 
-### 6. **Treinamento**
+### 7. **Treinamento**
    - **Algoritmo**: SGD (Stochastic Gradient Descent)
    - **Loss Function**: Mean Squared Error (MSE)
    - **Learning Rate**: 0.1
    - **Épocas**: 100 iterações completas
    - O modelo ajusta seus pesos para minimizar o erro
 
-### 7. **Predição do Futuro**
+### 8. **Predição do Futuro**
    - Normaliza o ano alvo (2030)
    - Passa pelo modelo treinado
    - Desnormaliza o resultado para obter valor real
    - Calcula variação percentual e absoluta
 
-### 8. **Cálculos Estatísticos**
+### 9. **Cálculos Estatísticos**
    - Usa métodos nativos dos tensores: `.mean()`, `.max()`, `.min()`
    - Muito mais rápido que loops tradicionais
    - Aproveitamento de paralelização
 
-### 9. **Gerenciamento de Memória**
+### 10. **Gerenciamento de Memória**
    - Todos os tensores são destruídos com `.dispose()`
    - Evita memory leaks em aplicações de longa duração
    - Boa prática essencial em Machine Learning
