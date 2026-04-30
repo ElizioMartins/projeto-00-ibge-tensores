@@ -2,6 +2,27 @@ const fs = require('fs');
 const tf = require('@tensorflow/tfjs');
 
 // ============================================
+// CONFIGURAÇÃO DO PROJETO
+// ============================================
+
+// Altere o estado aqui para fazer previsões para diferentes estados brasileiros
+// Opções disponíveis: SP, MG, RJ, BA, PR, RS, PE, CE, ES
+const ESTADO_ALVO = 'SP';
+
+// Mapeamento de siglas para nomes completos
+const ESTADOS = {
+  'SP': 'São Paulo',
+  'MG': 'Minas Gerais',
+  'RJ': 'Rio de Janeiro',
+  'BA': 'Bahia',
+  'PR': 'Paraná',
+  'RS': 'Rio Grande do Sul',
+  'PE': 'Pernambuco',
+  'CE': 'Ceará',
+  'ES': 'Espírito Santo'
+};
+
+// ============================================
 // FUNÇÕES AUXILIARES
 // ============================================
 
@@ -33,7 +54,9 @@ function desnormalizar(valorNormalizado, min, max) {
 // PARTE 1: Carregamento e Análise dos Dados Históricos
 // ============================================
 
-console.log('=== 📊 Preditor de População - São Paulo (IBGE) ===\n');
+const nomeEstado = ESTADOS[ESTADO_ALVO];
+
+console.log(`=== 📊 Preditor de População - ${nomeEstado} (IBGE) ===\n`);
 console.log('🔮 Análise Temporal e Predição com Machine Learning\n');
 console.log('='.repeat(60) + '\n');
 
@@ -41,8 +64,17 @@ console.log('='.repeat(60) + '\n');
 const dadosHistoricosRaw = fs.readFileSync('./dados-historicos.json', 'utf-8');
 const dadosHistoricos = JSON.parse(dadosHistoricosRaw);
 
-// 2. Extrair dados de SP para análise temporal
-const dadosSP = dadosHistoricos.find(item => item.estado === 'SP');
+// 2. Extrair dados do estado selecionado para análise temporal
+const dadosEstado = dadosHistoricos.find(item => item.estado === ESTADO_ALVO);
+
+// 2.1. Validar se o estado existe nos dados
+if (!dadosEstado) {
+  console.error(`❌ Erro: Estado "${ESTADO_ALVO}" não encontrado nos dados históricos.`);
+  console.log(`\n📋 Estados disponíveis: ${dadosHistoricos.map(d => d.estado).join(', ')}`);
+  process.exit(1);
+}
+
+const dadosSP = dadosEstado; // Mantém compatibilidade com código existente
 const populacoesSP = dadosSP.dados.map(d => d.populacao);
 const anos = dadosSP.dados.map(d => d.ano);
 
@@ -50,7 +82,7 @@ const anos = dadosSP.dados.map(d => d.ano);
 const tensorTemporalSP = tf.tensor1d(populacoesSP);
 
 // 4. Exibir evolução temporal
-console.log('📅 Evolução populacional de São Paulo:');
+console.log(`📅 Evolução populacional de ${nomeEstado}:`);
 dadosSP.dados.forEach(d => {
   console.log(`  ${d.ano}: ${d.populacao.toLocaleString('pt-BR')} habitantes`);
 });
@@ -173,7 +205,7 @@ async function treinarModelo() {
     populacoesNormalizadas.max
   );
   
-  console.log(`🎯 População prevista para São Paulo em 2030: ${Math.round(predicao2030Real).toLocaleString('pt-BR')} habitantes`);
+  console.log(`🎯 População prevista para ${nomeEstado} em 2030: ${Math.round(predicao2030Real).toLocaleString('pt-BR')} habitantes`);
   
   // 17. Calcular a diferença em relação a 2025
   const ultimaPopulacao = populacoesSP[populacoesSP.length - 1];
@@ -195,7 +227,7 @@ async function treinarModelo() {
   console.log('📊 RESUMO DA ANÁLISE COM IA');
   console.log('='.repeat(60));
   console.log('\n🔢 Dados analisados:');
-  console.log(`   • Estado: São Paulo (SP)`);
+  console.log(`   • Estado: ${nomeEstado} (${ESTADO_ALVO})`);
   console.log(`   • Período histórico: ${anos[0]} - ${anos[anos.length - 1]}`);
   console.log(`   • Pontos de dados temporais: ${anos.length}`);
   console.log(`   • População em 2025: ${populacoesSP[populacoesSP.length - 1].toLocaleString('pt-BR')} habitantes`);
@@ -214,7 +246,7 @@ async function treinarModelo() {
   console.log('\n💡 Insights:');
   const tendencia = diferencaAbsoluta > 0 ? 'crescimento' : 'decrescimento';
   const impacto = Math.abs(diferencaPercentual) > 10 ? 'significativo' : 'moderado';
-  console.log(`   • São Paulo apresenta ${tendencia} ${impacto}`);
+  console.log(`   • ${nomeEstado} apresenta ${tendencia} ${impacto}`);
   console.log(`   • O modelo sugere ${diferencaAbsoluta > 0 ? 'aumento' : 'redução'} de ${Math.abs(Math.round(diferencaAbsoluta)).toLocaleString('pt-BR')} habitantes`);
   
   console.log('\n' + '='.repeat(60));
