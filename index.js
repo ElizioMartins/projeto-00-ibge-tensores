@@ -126,3 +126,80 @@ console.log('Populações normalizadas:', populacoesNormalizadas.normalizados.ma
 const primeiroAnoNormalizado = anosNormalizados.normalizados[0];
 const anoOriginal = desnormalizar(primeiroAnoNormalizado, anosNormalizados.min, anosNormalizados.max);
 console.log(`\nExemplo: ${primeiroAnoNormalizado.toFixed(2)} (normalizado) = ${anoOriginal} (original)`);
+
+// ============================================
+// PARTE 4: Modelo de Regressão Linear (Machine Learning!)
+// ============================================
+
+console.log('\n=== Treinamento do Modelo de IA ===\n');
+
+// 15. Criar tensores de treino (X = anos, Y = população)
+// tf.tensor2d cria uma matriz, que é o formato esperado pelo modelo
+// Cada linha é um exemplo de treino: [[ano1], [ano2], [ano3], [ano4]]
+const X_train = tf.tensor2d(anosNormalizados.normalizados, [anos.length, 1]);
+const Y_train = tf.tensor2d(populacoesNormalizadas.normalizados, [populacoesSP.length, 1]);
+
+// 16. Criar o modelo sequencial
+// Sequential = camadas empilhadas uma após a outra
+const modelo = tf.sequential();
+
+// 17. Adicionar camada densa (neurônios totalmente conectados)
+// units: 1 = um único neurônio de saída (prever 1 valor: a população)
+// inputShape: [1] = recebe 1 entrada (o ano)
+// activation: 'linear' = sem função de ativação, pois é regressão linear pura
+modelo.add(tf.layers.dense({
+  units: 1,
+  inputShape: [1],
+  activation: 'linear'
+}));
+
+// 18. Compilar o modelo (definir como ele vai aprender)
+// optimizer: 'sgd' (Stochastic Gradient Descent) = algoritmo que ajusta os pesos
+// loss: 'meanSquaredError' = mede o erro como (predição - real)²
+// learningRate: 0.1 = velocidade do aprendizado (0.1 = moderada)
+modelo.compile({
+  optimizer: tf.train.sgd(0.1),
+  loss: 'meanSquaredError'
+});
+
+console.log('📊 Arquitetura do Modelo:');
+modelo.summary();
+
+// 19. Treinar o modelo
+// epochs: 100 = número de vezes que o modelo verá todos os dados
+// Aqui é onde a "mágica" acontece: o modelo ajusta seus pesos internos
+// para minimizar o erro entre suas previsões e os valores reais
+console.log('\n🎯 Treinando modelo...');
+
+async function treinarModelo() {
+  await modelo.fit(X_train, Y_train, {
+    epochs: 100,
+    verbose: 0 // verbose: 0 = não mostrar progresso de cada época
+  });
+  
+  console.log('✅ Treinamento concluído!\n');
+  
+  // 20. Testar o modelo com os dados de treino
+  console.log('=== Testando o Modelo com Dados Conhecidos ===\n');
+  
+  for (let i = 0; i < anos.length; i++) {
+    const anoNorm = anosNormalizados.normalizados[i];
+    const predicaoNorm = modelo.predict(tf.tensor2d([anoNorm], [1, 1]));
+    const predicaoReal = desnormalizar(
+      predicaoNorm.dataSync()[0],
+      populacoesNormalizadas.min,
+      populacoesNormalizadas.max
+    );
+    
+    console.log(`${anos[i]}: Real = ${populacoesSP[i].toLocaleString('pt-BR')}, Predito = ${Math.round(predicaoReal).toLocaleString('pt-BR')}`);
+    
+    predicaoNorm.dispose();
+  }
+  
+  // 21. Limpeza de memória dos tensores de treino
+  X_train.dispose();
+  Y_train.dispose();
+}
+
+// Executar o treinamento
+treinarModelo();
